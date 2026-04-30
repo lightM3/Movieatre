@@ -39,10 +39,10 @@ class HomeScreen extends ConsumerWidget {
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       width: 1,
                     ),
                   ),

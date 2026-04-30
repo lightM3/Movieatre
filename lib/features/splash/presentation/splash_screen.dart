@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/routing/route_names.dart';
+import '../../auth/domain/auth_controller.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -21,7 +22,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Future<void> _navigateToHome() async {
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      context.goNamed(RouteNames.home);
+      final authState = ref.read(authStateProvider);
+      if (authState.value != null) {
+        context.goNamed(RouteNames.home);
+      } else {
+        context.goNamed(RouteNames.login);
+      }
     }
   }
 
