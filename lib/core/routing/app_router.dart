@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../features/home/presentation/home_screen.dart';
+import '../../features/movies/presentation/movies_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
@@ -71,7 +71,7 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         name: RouteNames.home,
         path: RoutePaths.home,
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const MoviesScreen(),
       ),
     ],
   );
