@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'core/env/env_config.dart';
 import 'core/database/isar_provider.dart';
 import 'core/network/supabase_client_provider.dart';
 import 'core/routing/app_router.dart';

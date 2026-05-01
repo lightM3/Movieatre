@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../domain/movie_detail_controller.dart';
 import '../domain/models/movie_detail.dart';
 import '../../auth/presentation/widgets/glass_container.dart';
+import '../../lists/presentation/widgets/add_to_list_bottom_sheet.dart';
 
 class MovieDetailScreen extends ConsumerWidget {
   final int movieId;
@@ -109,7 +110,7 @@ class MovieDetailScreen extends ConsumerWidget {
                   _buildTrailersList(movie.videos!.results),
                   const SizedBox(height: 32),
                 ],
-                _buildAddToListButton(),
+                _buildAddToListButton(context, movie.id),
                 const SizedBox(height: 40),
               ],
             ),
@@ -426,7 +427,7 @@ class MovieDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAddToListButton() {
+  Widget _buildAddToListButton(BuildContext context, int tmdbMovieId) {
     return GlassContainer(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Material(
@@ -434,7 +435,15 @@ class MovieDetailScreen extends ConsumerWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
           onTap: () {
-            // Şimdilik işlevsiz, UI olarak kalacak
+            showModalBottomSheet(
+              context: context,
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              builder: (context) => FractionallySizedBox(
+                heightFactor: 0.7,
+                child: AddToListBottomSheet(tmdbMovieId: tmdbMovieId),
+              ),
+            );
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
