@@ -24,6 +24,8 @@ mixin _$Profile {
   String? get email => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'top_four_movies')
+  List<int>? get topFourMovies => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -38,7 +40,8 @@ abstract class $ProfileCopyWith<$Res> {
   $Res call(
       {String id,
       String? email,
-      @JsonKey(name: 'created_at') DateTime? createdAt});
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'top_four_movies') List<int>? topFourMovies});
 }
 
 /// @nodoc
@@ -57,6 +60,7 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
     Object? id = null,
     Object? email = freezed,
     Object? createdAt = freezed,
+    Object? topFourMovies = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -71,6 +75,10 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      topFourMovies: freezed == topFourMovies
+          ? _value.topFourMovies
+          : topFourMovies // ignore: cast_nullable_to_non_nullable
+              as List<int>?,
     ) as $Val);
   }
 }
@@ -85,7 +93,8 @@ abstract class _$$ProfileImplCopyWith<$Res> implements $ProfileCopyWith<$Res> {
   $Res call(
       {String id,
       String? email,
-      @JsonKey(name: 'created_at') DateTime? createdAt});
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'top_four_movies') List<int>? topFourMovies});
 }
 
 /// @nodoc
@@ -102,6 +111,7 @@ class __$$ProfileImplCopyWithImpl<$Res>
     Object? id = null,
     Object? email = freezed,
     Object? createdAt = freezed,
+    Object? topFourMovies = freezed,
   }) {
     return _then(_$ProfileImpl(
       id: null == id
@@ -116,6 +126,10 @@ class __$$ProfileImplCopyWithImpl<$Res>
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      topFourMovies: freezed == topFourMovies
+          ? _value._topFourMovies
+          : topFourMovies // ignore: cast_nullable_to_non_nullable
+              as List<int>?,
     ));
   }
 }
@@ -126,7 +140,9 @@ class _$ProfileImpl implements _Profile {
   const _$ProfileImpl(
       {required this.id,
       this.email,
-      @JsonKey(name: 'created_at') this.createdAt});
+      @JsonKey(name: 'created_at') this.createdAt,
+      @JsonKey(name: 'top_four_movies') final List<int>? topFourMovies})
+      : _topFourMovies = topFourMovies;
 
   factory _$ProfileImpl.fromJson(Map<String, dynamic> json) =>
       _$$ProfileImplFromJson(json);
@@ -138,10 +154,20 @@ class _$ProfileImpl implements _Profile {
   @override
   @JsonKey(name: 'created_at')
   final DateTime? createdAt;
+  final List<int>? _topFourMovies;
+  @override
+  @JsonKey(name: 'top_four_movies')
+  List<int>? get topFourMovies {
+    final value = _topFourMovies;
+    if (value == null) return null;
+    if (_topFourMovies is EqualUnmodifiableListView) return _topFourMovies;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'Profile(id: $id, email: $email, createdAt: $createdAt)';
+    return 'Profile(id: $id, email: $email, createdAt: $createdAt, topFourMovies: $topFourMovies)';
   }
 
   @override
@@ -152,12 +178,15 @@ class _$ProfileImpl implements _Profile {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            const DeepCollectionEquality()
+                .equals(other._topFourMovies, _topFourMovies));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, email, createdAt);
+  int get hashCode => Object.hash(runtimeType, id, email, createdAt,
+      const DeepCollectionEquality().hash(_topFourMovies));
 
   @JsonKey(ignore: true)
   @override
@@ -175,9 +204,11 @@ class _$ProfileImpl implements _Profile {
 
 abstract class _Profile implements Profile {
   const factory _Profile(
-      {required final String id,
-      final String? email,
-      @JsonKey(name: 'created_at') final DateTime? createdAt}) = _$ProfileImpl;
+          {required final String id,
+          final String? email,
+          @JsonKey(name: 'created_at') final DateTime? createdAt,
+          @JsonKey(name: 'top_four_movies') final List<int>? topFourMovies}) =
+      _$ProfileImpl;
 
   factory _Profile.fromJson(Map<String, dynamic> json) = _$ProfileImpl.fromJson;
 
@@ -188,6 +219,9 @@ abstract class _Profile implements Profile {
   @override
   @JsonKey(name: 'created_at')
   DateTime? get createdAt;
+  @override
+  @JsonKey(name: 'top_four_movies')
+  List<int>? get topFourMovies;
   @override
   @JsonKey(ignore: true)
   _$$ProfileImplCopyWith<_$ProfileImpl> get copyWith =>

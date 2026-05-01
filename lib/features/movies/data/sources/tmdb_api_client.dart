@@ -52,6 +52,29 @@ class TmdbApiClient {
       throw NetworkException('Beklenmeyen bir hata oluştu: $e');
     }
   }
+
+  Future<List<Movie>> searchMovies(String query, {int page = 1}) async {
+    try {
+      final response = await _dio.get(
+        '/search/movie',
+        queryParameters: {
+          'query': query,
+          'page': page,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> results = response.data['results'];
+        return results.map((json) => Movie.fromJson(json)).toList();
+      } else {
+        throw NetworkException('TMDB API Hatası: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      throw NetworkException('Bağlantı hatası: ${e.message}');
+    } catch (e) {
+      throw NetworkException('Beklenmeyen bir hata oluştu: $e');
+    }
+  }
 }
 
 @riverpod

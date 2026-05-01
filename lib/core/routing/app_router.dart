@@ -9,9 +9,18 @@ import '../../features/splash/presentation/splash_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/domain/auth_controller.dart';
+import '../../features/main/presentation/main_layout_screen.dart';
+import '../../features/search/presentation/search_screen.dart';
+import '../../features/profile/presentation/profile_screen.dart';
+import 'package:flutter/material.dart';
 import 'route_names.dart';
 
 part 'app_router.g.dart';
+
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+final shellNavigatorHomeKey = GlobalKey<NavigatorState>(debugLabel: 'homeTab');
+final shellNavigatorSearchKey = GlobalKey<NavigatorState>(debugLabel: 'searchTab');
+final shellNavigatorProfileKey = GlobalKey<NavigatorState>(debugLabel: 'profileTab');
 
 class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
@@ -28,6 +37,7 @@ GoRouter appRouter(AppRouterRef ref) {
   final notifier = RouterNotifier(ref);
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     refreshListenable: notifier,
     redirect: (context, state) {
@@ -39,10 +49,6 @@ GoRouter appRouter(AppRouterRef ref) {
       final isGoingToAuth = isGoingToLogin || isGoingToRegister;
       final isSplash = state.matchedLocation == RoutePaths.splash;
 
-      // Splash ekranındayken yönlendirme (splash ekranında 2 saniye bekliyoruz gerçi ama guard devrede olacak)
-      // Ancak Splash ekranındaki Future.delayed logic'ine dokunmuyoruz ki animasyon görünsün.
-      // Bu guard o geçişi kontrol altında tutacak.
-      
       if (!isAuth && !isGoingToAuth && !isSplash) {
         return RoutePaths.login;
       }
@@ -70,18 +76,51 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
-        name: RouteNames.home,
-        path: RoutePaths.home,
-        builder: (context, state) => const MoviesScreen(),
-      ),
-      GoRoute(
         name: RouteNames.movieDetail,
         path: RoutePaths.movieDetail,
+        parentNavigatorKey: rootNavigatorKey, // Detay sayfası tüm tabların üzerine (fullscreen) açılır
         builder: (context, state) {
           final idStr = state.pathParameters['id'] ?? '0';
           final movieId = int.tryParse(idStr) ?? 0;
           return MovieDetailScreen(movieId: movieId);
         },
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainLayoutScreen(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            navigatorKey: shellNavigatorHomeKey,
+            routes: [
+              GoRoute(
+                name: RouteNames.home,
+                path: RoutePaths.home,
+                builder: (context, state) => const MoviesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: shellNavigatorSearchKey,
+            routes: [
+              GoRoute(
+                name: RouteNames.search,
+                path: RoutePaths.search,
+                builder: (context, state) => const SearchScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: shellNavigatorProfileKey,
+            routes: [
+              GoRoute(
+                name: RouteNames.profile,
+                path: RoutePaths.profile,
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );

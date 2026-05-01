@@ -4,6 +4,8 @@ class RouteNames {
   static const String login = 'login';
   static const String register = 'register';
   static const String movieDetail = 'movieDetail';
+  static const String search = 'search';
+  static const String profile = 'profile';
 }
 
 class RoutePaths {
@@ -12,4 +14,6 @@ class RoutePaths {
   static const String login = '/login';
   static const String register = '/register';
   static const String movieDetail = '/movie/:id';
+  static const String search = '/search';
+  static const String profile = '/profile';
 }

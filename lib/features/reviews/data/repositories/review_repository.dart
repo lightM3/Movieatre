@@ -25,6 +25,21 @@ class ReviewRepository {
     }
   }
 
+  Future<List<Review>> getUserReviews(String userId) async {
+    try {
+      final response = await _supabase
+          .from('reviews')
+          .select('*, profiles(*)')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false)
+          .limit(10); // Son 10 hareketi çekelim
+
+      return (response as List).map((e) => Review.fromJson(e)).toList();
+    } catch (e) {
+      throw DatabaseException('Kullanıcı yorumları yüklenemedi: $e');
+    }
+  }
+
   Future<Review> addOrUpdateReview(int movieId, double rating, String? content) async {
     try {
       final userId = _supabase.auth.currentUser?.id;

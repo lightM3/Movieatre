@@ -30,6 +30,14 @@ class MovieLocalDataSource {
       throw DatabaseException('Filmler önbellekten okunamadı: $e');
     }
   }
+
+  Future<MovieEntity?> getMovieById(int id) async {
+    try {
+      return await _isar.movieEntitys.where().tmdbIdEqualTo(id).findFirst();
+    } catch (e) {
+      throw DatabaseException('Film önbellekten okunamadı: $e');
+    }
+  }
 }
 
 @riverpod
