@@ -8,6 +8,9 @@ import '../domain/movie_detail_controller.dart';
 import '../domain/models/movie_detail.dart';
 import '../../auth/presentation/widgets/glass_container.dart';
 import '../../lists/presentation/widgets/add_to_list_bottom_sheet.dart';
+import '../../reviews/presentation/widgets/write_review_bottom_sheet.dart';
+import '../../reviews/domain/review_controller.dart';
+import '../../reviews/domain/models/review.dart';
 
 class MovieDetailScreen extends ConsumerWidget {
   final int movieId;
@@ -25,7 +28,7 @@ class MovieDetailScreen extends ConsumerWidget {
           child: CircularProgressIndicator(color: Colors.indigoAccent),
         ),
         error: (error, stack) => _buildErrorState(context, ref, error),
-        data: (movie) => _buildContent(context, movie),
+        data: (movie) => _buildContent(context, ref, movie),
       ),
     );
   }
@@ -84,7 +87,7 @@ class MovieDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, MovieDetail movie) {
+  Widget _buildContent(BuildContext context, WidgetRef ref, MovieDetail movie) {
     return CustomScrollView(
       slivers: [
         _buildSliverAppBar(context, movie),
@@ -111,6 +114,8 @@ class MovieDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 32),
                 ],
                 _buildAddToListButton(context, movie.id),
+                const SizedBox(height: 32),
+                _buildReviewsSection(context, ref, movie.id),
                 const SizedBox(height: 40),
               ],
             ),
@@ -461,6 +466,163 @@ class MovieDetailScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+  Widget _buildReviewsSection(BuildContext context, WidgetRef ref, int movieId) {
+    final reviewsState = ref.watch(movieReviewsControllerProvider(movieId));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('Kullanıcı Yorumları'),
+        const SizedBox(height: 16),
+        GlassContainer(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (context) => WriteReviewBottomSheet(movieId: movieId),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.star_rate, color: Colors.amber),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Değerlendir ve Yorum Yap',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        reviewsState.when(
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: CircularProgressIndicator(color: Colors.indigoAccent),
+            ),
+          ),
+          error: (error, stack) => Center(
+            child: Text(
+              'Yorumlar yüklenemedi: $error',
+              style: GoogleFonts.inter(color: Colors.redAccent),
+            ),
+          ),
+          data: (reviews) {
+            if (reviews.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    'Henüz yorum yapılmamış. İlk yorumu sen yap!',
+                    style: GoogleFonts.inter(color: Colors.white54),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            }
+
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: reviews.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final review = reviews[index];
+                return _buildReviewCard(review);
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReviewCard(Review review) {
+    final userName = review.profiles?.email?.split('@').first ?? 'Kullanıcı';
+    
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.indigoAccent.withValues(alpha: 0.2),
+                radius: 20,
+                child: Text(
+                  userName[0].toUpperCase(),
+                  style: GoogleFonts.outfit(
+                    color: Colors.indigoAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userName,
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (review.createdAt != null)
+                      Text(
+                        '${review.createdAt!.day}/${review.createdAt!.month}/${review.createdAt!.year}',
+                        style: GoogleFonts.inter(
+                          color: Colors.white54,
+                          fontSize: 12,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 18),
+                  const SizedBox(width: 4),
+                  Text(
+                    review.rating.toStringAsFixed(1),
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          if (review.content != null && review.content!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Text(
+              review.content!,
+              style: GoogleFonts.inter(
+                color: Colors.white70,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
