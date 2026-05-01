@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../features/movies/presentation/movies_screen.dart';
+import '../../features/movies/presentation/movie_detail_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
@@ -72,6 +73,15 @@ GoRouter appRouter(AppRouterRef ref) {
         name: RouteNames.home,
         path: RoutePaths.home,
         builder: (context, state) => const MoviesScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.movieDetail,
+        path: RoutePaths.movieDetail,
+        builder: (context, state) {
+          final idStr = state.pathParameters['id'] ?? '0';
+          final movieId = int.tryParse(idStr) ?? 0;
+          return MovieDetailScreen(movieId: movieId);
+        },
       ),
     ],
   );

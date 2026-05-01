@@ -3,6 +3,7 @@ class RouteNames {
   static const String home = 'home';
   static const String login = 'login';
   static const String register = 'register';
+  static const String movieDetail = 'movieDetail';
 }
 
 class RoutePaths {
@@ -10,4 +11,5 @@ class RoutePaths {
   static const String home = '/home';
   static const String login = '/login';
   static const String register = '/register';
+  static const String movieDetail = '/movie/:id';
 }

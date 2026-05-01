@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../domain/movie_controller.dart';
 import '../../auth/presentation/widgets/glass_container.dart';
+import '../../../core/routing/route_names.dart';
 
 class MoviesScreen extends ConsumerWidget {
   const MoviesScreen({super.key});
@@ -53,10 +56,17 @@ class MoviesScreen extends ConsumerWidget {
               final movie = movies[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
-                child: GlassContainer(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                child: GestureDetector(
+                  onTap: () {
+                    context.pushNamed(
+                      RouteNames.movieDetail,
+                      pathParameters: {'id': movie.id.toString()},
+                    );
+                  },
+                  child: GlassContainer(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Poster
                       if (movie.posterPath != null)
@@ -144,7 +154,8 @@ class MoviesScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              );
+              ),
+            );
             },
           );
         },
