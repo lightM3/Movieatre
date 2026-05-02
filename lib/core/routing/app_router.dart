@@ -12,6 +12,7 @@ import '../../features/auth/domain/auth_controller.dart';
 import '../../features/main/presentation/main_layout_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'route_names.dart';
 
@@ -84,6 +85,12 @@ GoRouter appRouter(AppRouterRef ref) {
           final movieId = int.tryParse(idStr) ?? 0;
           return MovieDetailScreen(movieId: movieId);
         },
+      ),
+      GoRoute(
+        name: RouteNames.editProfile,
+        path: '/profile/edit',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const EditProfileScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

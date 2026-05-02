@@ -6,6 +6,7 @@ class RouteNames {
   static const String movieDetail = 'movieDetail';
   static const String search = 'search';
   static const String profile = 'profile';
+  static const String editProfile = 'edit-profile';
 }
 
 class RoutePaths {
@@ -16,4 +17,6 @@ class RoutePaths {
   static const String movieDetail = '/movie/:id';
   static const String search = '/search';
   static const String profile = '/profile';
+  static const String editProfile = 'edit';
+  static const String lists = '/lists';
 }

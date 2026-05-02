@@ -16,6 +16,8 @@ _$ProfileImpl _$$ProfileImplFromJson(Map<String, dynamic> json) =>
       topFourMovies: (json['top_four_movies'] as List<dynamic>?)
           ?.map((e) => (e as num).toInt())
           .toList(),
+      avatarUrl: json['avatar_url'] as String?,
+      bio: json['bio'] as String?,
     );
 
 Map<String, dynamic> _$$ProfileImplToJson(_$ProfileImpl instance) =>
@@ -24,4 +26,6 @@ Map<String, dynamic> _$$ProfileImplToJson(_$ProfileImpl instance) =>
       'email': instance.email,
       'created_at': instance.createdAt?.toIso8601String(),
       'top_four_movies': instance.topFourMovies,
+      'avatar_url': instance.avatarUrl,
+      'bio': instance.bio,
     };

@@ -10,6 +10,8 @@ class Profile with _$Profile {
     String? email,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'top_four_movies') List<int>? topFourMovies,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    String? bio,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, dynamic> json) => _$ProfileFromJson(json);

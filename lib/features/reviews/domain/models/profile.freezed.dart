@@ -26,6 +26,9 @@ mixin _$Profile {
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'top_four_movies')
   List<int>? get topFourMovies => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl => throw _privateConstructorUsedError;
+  String? get bio => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -41,7 +44,9 @@ abstract class $ProfileCopyWith<$Res> {
       {String id,
       String? email,
       @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'top_four_movies') List<int>? topFourMovies});
+      @JsonKey(name: 'top_four_movies') List<int>? topFourMovies,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      String? bio});
 }
 
 /// @nodoc
@@ -61,6 +66,8 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
     Object? email = freezed,
     Object? createdAt = freezed,
     Object? topFourMovies = freezed,
+    Object? avatarUrl = freezed,
+    Object? bio = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -79,6 +86,14 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
           ? _value.topFourMovies
           : topFourMovies // ignore: cast_nullable_to_non_nullable
               as List<int>?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bio: freezed == bio
+          ? _value.bio
+          : bio // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -94,7 +109,9 @@ abstract class _$$ProfileImplCopyWith<$Res> implements $ProfileCopyWith<$Res> {
       {String id,
       String? email,
       @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'top_four_movies') List<int>? topFourMovies});
+      @JsonKey(name: 'top_four_movies') List<int>? topFourMovies,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      String? bio});
 }
 
 /// @nodoc
@@ -112,6 +129,8 @@ class __$$ProfileImplCopyWithImpl<$Res>
     Object? email = freezed,
     Object? createdAt = freezed,
     Object? topFourMovies = freezed,
+    Object? avatarUrl = freezed,
+    Object? bio = freezed,
   }) {
     return _then(_$ProfileImpl(
       id: null == id
@@ -130,6 +149,14 @@ class __$$ProfileImplCopyWithImpl<$Res>
           ? _value._topFourMovies
           : topFourMovies // ignore: cast_nullable_to_non_nullable
               as List<int>?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bio: freezed == bio
+          ? _value.bio
+          : bio // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -141,7 +168,9 @@ class _$ProfileImpl implements _Profile {
       {required this.id,
       this.email,
       @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'top_four_movies') final List<int>? topFourMovies})
+      @JsonKey(name: 'top_four_movies') final List<int>? topFourMovies,
+      @JsonKey(name: 'avatar_url') this.avatarUrl,
+      this.bio})
       : _topFourMovies = topFourMovies;
 
   factory _$ProfileImpl.fromJson(Map<String, dynamic> json) =>
@@ -166,8 +195,14 @@ class _$ProfileImpl implements _Profile {
   }
 
   @override
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
+  @override
+  final String? bio;
+
+  @override
   String toString() {
-    return 'Profile(id: $id, email: $email, createdAt: $createdAt, topFourMovies: $topFourMovies)';
+    return 'Profile(id: $id, email: $email, createdAt: $createdAt, topFourMovies: $topFourMovies, avatarUrl: $avatarUrl, bio: $bio)';
   }
 
   @override
@@ -180,13 +215,16 @@ class _$ProfileImpl implements _Profile {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             const DeepCollectionEquality()
-                .equals(other._topFourMovies, _topFourMovies));
+                .equals(other._topFourMovies, _topFourMovies) &&
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl) &&
+            (identical(other.bio, bio) || other.bio == bio));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, id, email, createdAt,
-      const DeepCollectionEquality().hash(_topFourMovies));
+      const DeepCollectionEquality().hash(_topFourMovies), avatarUrl, bio);
 
   @JsonKey(ignore: true)
   @override
@@ -204,11 +242,12 @@ class _$ProfileImpl implements _Profile {
 
 abstract class _Profile implements Profile {
   const factory _Profile(
-          {required final String id,
-          final String? email,
-          @JsonKey(name: 'created_at') final DateTime? createdAt,
-          @JsonKey(name: 'top_four_movies') final List<int>? topFourMovies}) =
-      _$ProfileImpl;
+      {required final String id,
+      final String? email,
+      @JsonKey(name: 'created_at') final DateTime? createdAt,
+      @JsonKey(name: 'top_four_movies') final List<int>? topFourMovies,
+      @JsonKey(name: 'avatar_url') final String? avatarUrl,
+      final String? bio}) = _$ProfileImpl;
 
   factory _Profile.fromJson(Map<String, dynamic> json) = _$ProfileImpl.fromJson;
 
@@ -222,6 +261,11 @@ abstract class _Profile implements Profile {
   @override
   @JsonKey(name: 'top_four_movies')
   List<int>? get topFourMovies;
+  @override
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl;
+  @override
+  String? get bio;
   @override
   @JsonKey(ignore: true)
   _$$ProfileImplCopyWith<_$ProfileImpl> get copyWith =>

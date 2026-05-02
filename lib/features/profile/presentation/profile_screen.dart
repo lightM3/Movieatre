@@ -1,4 +1,4 @@
-import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +11,7 @@ import '../../auth/presentation/widgets/glass_container.dart';
 import '../../lists/domain/list_controller.dart';
 import '../../movies/domain/models/movie.dart';
 import '../domain/profile_controller.dart';
+import '../../reviews/domain/models/profile.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -38,7 +39,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(data.profile.email ?? 'Kullanıcı'),
+                _buildHeader(context, data.profile),
                 const SizedBox(height: 32),
                 
                 // Top 4 Favoriler
@@ -109,49 +110,89 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(String email) {
+  Widget _buildHeader(BuildContext context, Profile profile) {
+    final email = profile.email ?? 'Kullanıcı';
     final name = email.split('@').first;
     
     return Padding(
       padding: const EdgeInsets.all(24),
       child: GlassContainer(
         padding: const EdgeInsets.all(24),
-        child: Row(
+        child: Column(
           children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.indigoAccent.withValues(alpha: 0.2),
-              child: Text(
-                name[0].toUpperCase(),
-                style: GoogleFonts.outfit(
-                  color: Colors.indigoAccent,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+            Row(
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.indigoAccent.withValues(alpha: 0.2),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
+                  child: ClipOval(
+                    child: profile.avatarUrl != null
+                        ? CachedNetworkImage(
+                            imageUrl: profile.avatarUrl!,
+                            fit: BoxFit.cover,
+                          )
+                        : Center(
+                            child: Text(
+                              name[0].toUpperCase(),
+                              style: GoogleFonts.outfit(
+                                color: Colors.indigoAccent,
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildStatBadge('Film Aşığı'),
+                      Text(
+                        name,
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _buildStatBadge('Film Aşığı'),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white70),
+                  onPressed: () => context.pushNamed(RouteNames.editProfile),
+                ),
+              ],
             ),
+            if (profile.bio != null && profile.bio!.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  profile.bio!,
+                  style: GoogleFonts.inter(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
