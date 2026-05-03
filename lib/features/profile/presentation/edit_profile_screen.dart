@@ -36,7 +36,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   void _loadInitialData() {
-    final profileState = ref.read(profileControllerProvider).valueOrNull;
+    final profileState = ref.read(profileControllerProvider(null)).valueOrNull;
     if (profileState != null) {
       _bioController.text = profileState.profile.bio ?? '';
       _avatarUrl = profileState.profile.avatarUrl;

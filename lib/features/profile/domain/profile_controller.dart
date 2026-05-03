@@ -6,6 +6,7 @@ import '../../reviews/domain/models/profile.dart';
 import '../../reviews/domain/models/review.dart';
 import '../../reviews/data/repositories/review_repository.dart';
 import '../../../../core/network/supabase_client_provider.dart';
+import '../data/repositories/follow_repository.dart';
 
 part 'profile_controller.g.dart';
 
@@ -13,11 +14,15 @@ class ProfileState {
   final Profile profile;
   final List<Movie> topFourMovies;
   final List<ReviewWithMovie> recentReviews;
+  final int followersCount;
+  final int followingCount;
 
   ProfileState({
     required this.profile,
     required this.topFourMovies,
     required this.recentReviews,
+    required this.followersCount,
+    required this.followingCount,
   });
 }
 
@@ -31,15 +36,16 @@ class ReviewWithMovie {
 @riverpod
 class ProfileController extends _$ProfileController {
   @override
-  FutureOr<ProfileState> build() async {
-    return _fetchProfileData();
+  FutureOr<ProfileState> build([String? userId]) async {
+    return _fetchProfileData(userId);
   }
 
-  Future<ProfileState> _fetchProfileData() async {
+  Future<ProfileState> _fetchProfileData(String? userId) async {
     final supabase = ref.read(supabaseClientProvider);
-    final userId = supabase.auth.currentUser?.id;
+    final currentUserId = supabase.auth.currentUser?.id;
+    final targetUserId = userId ?? currentUserId;
     
-    if (userId == null) {
+    if (targetUserId == null) {
       throw Exception('Kullanıcı bulunamadı.');
     }
 
@@ -47,7 +53,7 @@ class ProfileController extends _$ProfileController {
     final profileResponse = await supabase
         .from('profiles')
         .select()
-        .eq('id', userId)
+        .eq('id', targetUserId)
         .single();
     
     final profile = Profile.fromJson(profileResponse);
@@ -62,7 +68,7 @@ class ProfileController extends _$ProfileController {
 
     // 3. Fetch Recent Reviews
     final reviewRepo = ref.read(reviewRepositoryProvider);
-    final recentReviews = await reviewRepo.getUserReviews(userId);
+    final recentReviews = await reviewRepo.getUserReviews(targetUserId);
     
     // N+1 Query çözüm: Future.wait ile Isar & TMDB fallback
     final reviewFutures = recentReviews.map((review) async {
@@ -72,10 +78,17 @@ class ProfileController extends _$ProfileController {
     
     final recentReviewsWithMovies = await Future.wait(reviewFutures);
 
+    // 4. Fetch Follows Count
+    final followRepo = ref.read(followRepositoryProvider);
+    final followersCount = await followRepo.getFollowersCount(targetUserId);
+    final followingCount = await followRepo.getFollowingCount(targetUserId);
+
     return ProfileState(
       profile: profile,
       topFourMovies: topFourMovies,
       recentReviews: recentReviewsWithMovies,
+      followersCount: followersCount,
+      followingCount: followingCount,
     );
   }
 

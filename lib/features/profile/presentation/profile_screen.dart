@@ -6,23 +6,43 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/routing/route_names.dart';
+import '../../../core/network/supabase_client_provider.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../auth/presentation/widgets/glass_container.dart';
 import '../../lists/domain/list_controller.dart';
 import '../../movies/domain/models/movie.dart';
 import '../domain/profile_controller.dart';
-import '../../reviews/domain/models/profile.dart';
+import '../domain/follow_controller.dart';
 
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+  final String? userId;
+
+  const ProfileScreen({super.key, this.userId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileState = ref.watch(profileControllerProvider);
-    final listsState = ref.watch(listControllerProvider);
+    final profileState = ref.watch(profileControllerProvider(userId));
+    final listsState = ref.watch(listControllerProvider(userId));
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
+      appBar: userId != null
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                onPressed: () => context.pop(),
+              ),
+              title: Text(
+                'Profil',
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          : null,
       body: SafeArea(
         child: profileState.when(
           loading: () => const Center(
@@ -39,7 +59,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(context, data.profile),
+                _buildHeader(context, ref, data),
                 const SizedBox(height: 32),
                 
                 // Top 4 Favoriler
@@ -110,10 +130,14 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, Profile profile) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref, ProfileState data) {
+    final profile = data.profile;
     final email = profile.email ?? 'Kullanıcı';
     final name = email.split('@').first;
     
+    final currentUserId = ref.read(supabaseClientProvider).auth.currentUser?.id;
+    final isCurrentUser = currentUserId == profile.id;
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: GlassContainer(
@@ -161,18 +185,24 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          _buildStatBadge('Film Aşığı'),
-                        ],
+                      Text(
+                        '${data.followersCount} Takipçi · ${data.followingCount} Takip Edilen',
+                        style: GoogleFonts.inter(
+                          color: Colors.white70,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white70),
-                  onPressed: () => context.pushNamed(RouteNames.editProfile),
-                ),
+                if (isCurrentUser)
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.white70),
+                    onPressed: () => context.pushNamed(RouteNames.editProfile),
+                  )
+                else
+                  _buildFollowButton(context, ref, profile.id),
               ],
             ),
             if (profile.bio != null && profile.bio!.isNotEmpty) ...[
@@ -199,22 +229,56 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatBadge(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.indigoAccent.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.indigoAccent.withValues(alpha: 0.5)),
+  Widget _buildFollowButton(BuildContext context, WidgetRef ref, String targetUserId) {
+    final followState = ref.watch(followControllerProvider(targetUserId));
+    
+    return followState.when(
+      data: (isFollowing) {
+        return ElevatedButton(
+          onPressed: () async {
+            try {
+              await ref.read(followControllerProvider(targetUserId).notifier).toggleFollow();
+              // After follow/unfollow, we should ideally invalidate the profile controller to refresh stats
+              ref.invalidate(profileControllerProvider(targetUserId));
+              ref.invalidate(profileControllerProvider(null)); // Refresh current user's profile stats (following count)
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString()),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+              }
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isFollowing ? Colors.white.withValues(alpha: 0.1) : Colors.indigoAccent,
+            foregroundColor: isFollowing ? Colors.white : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: isFollowing 
+                  ? BorderSide(color: Colors.white.withValues(alpha: 0.2))
+                  : BorderSide.none,
+            ),
+            elevation: isFollowing ? 0 : 4,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+          child: Text(
+            isFollowing ? 'Takip Ediliyor' : 'Takip Et',
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox(
+        width: 100,
+        height: 36,
+        child: Center(child: CircularProgressIndicator(color: Colors.indigoAccent, strokeWidth: 2)),
       ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          color: Colors.indigoAccent,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      error: (error, stack) => const SizedBox(),
     );
   }
 

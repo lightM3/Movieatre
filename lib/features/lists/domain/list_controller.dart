@@ -7,12 +7,12 @@ part 'list_controller.g.dart';
 @riverpod
 class ListController extends _$ListController {
   @override
-  FutureOr<List<MovieList>> build() async {
-    return _fetchLists();
+  FutureOr<List<MovieList>> build([String? userId]) async {
+    return _fetchLists(userId);
   }
 
-  Future<List<MovieList>> _fetchLists() async {
-    return ref.read(listRepositoryProvider).getUserLists();
+  Future<List<MovieList>> _fetchLists(String? userId) async {
+    return ref.read(listRepositoryProvider).getUserLists(userId);
   }
 
   Future<void> createList(String title, {String? description}) async {
@@ -21,7 +21,7 @@ class ListController extends _$ListController {
       final repository = ref.read(listRepositoryProvider);
       await repository.createList(title, description: description);
       // Yeni liste eklendikten sonra listeleri tekrar çek
-      return _fetchLists();
+      return _fetchLists(userId);
     });
   }
 

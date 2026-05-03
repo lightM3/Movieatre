@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/routing/route_names.dart';
 
 import '../domain/movie_detail_controller.dart';
 import '../domain/models/movie_detail.dart';
@@ -544,7 +546,7 @@ class MovieDetailScreen extends ConsumerWidget {
               separatorBuilder: (context, index) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final review = reviews[index];
-                return _buildReviewCard(review);
+                return _buildReviewCard(context, review);
               },
             );
           },
@@ -553,7 +555,7 @@ class MovieDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildReviewCard(Review review) {
+  Widget _buildReviewCard(BuildContext context, Review review) {
     final userName = review.profiles?.email?.split('@').first ?? 'Kullanıcı';
     
     return GlassContainer(
@@ -561,31 +563,35 @@ class MovieDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: Colors.indigoAccent.withValues(alpha: 0.2),
-                radius: 20,
-                child: Text(
-                  userName[0].toUpperCase(),
-                  style: GoogleFonts.outfit(
-                    color: Colors.indigoAccent,
-                    fontWeight: FontWeight.bold,
+          GestureDetector(
+            onTap: () {
+              context.pushNamed(RouteNames.userProfile, pathParameters: {'id': review.userId});
+            },
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.indigoAccent.withValues(alpha: 0.2),
+                  radius: 20,
+                  child: Text(
+                    userName[0].toUpperCase(),
+                    style: GoogleFonts.outfit(
+                      color: Colors.indigoAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userName,
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userName,
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
                     if (review.createdAt != null)
                       Text(
                         '${review.createdAt!.day}/${review.createdAt!.month}/${review.createdAt!.year}',
@@ -611,6 +617,7 @@ class MovieDetailScreen extends ConsumerWidget {
                 ],
               ),
             ],
+          ),
           ),
           if (review.content != null && review.content!.isNotEmpty) ...[
             const SizedBox(height: 16),

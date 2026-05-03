@@ -92,6 +92,15 @@ GoRouter appRouter(AppRouterRef ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const EditProfileScreen(),
       ),
+      GoRoute(
+        name: RouteNames.userProfile,
+        path: RoutePaths.userProfile,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final userId = state.pathParameters['id'];
+          return ProfileScreen(userId: userId);
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainLayoutScreen(navigationShell: navigationShell);

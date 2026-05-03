@@ -12,16 +12,17 @@ class ListRepository {
 
   ListRepository(this._supabase);
 
-  Future<List<MovieList>> getUserLists() async {
+  Future<List<MovieList>> getUserLists([String? userId]) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) throw AuthException('Oturum bulunamadı.');
+      final currentUserId = _supabase.auth.currentUser?.id;
+      final targetUserId = userId ?? currentUserId;
+      if (targetUserId == null) throw AuthException('Oturum bulunamadı.');
 
       // Listeleri getir
       final listsResponse = await _supabase
           .from('lists')
           .select()
-          .eq('user_id', userId)
+          .eq('user_id', targetUserId)
           .order('created_at', ascending: false);
 
       final lists = (listsResponse as List)

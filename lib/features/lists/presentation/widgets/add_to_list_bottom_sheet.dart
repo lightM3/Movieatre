@@ -16,7 +16,7 @@ class AddToListBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final listState = ref.watch(listControllerProvider);
+    final listState = ref.watch(listControllerProvider(null));
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -132,7 +132,7 @@ class AddToListBottomSheet extends ConsumerWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          ref.read(listControllerProvider.notifier).toggleMovieInList(list.id, tmdbMovieId);
+          ref.read(listControllerProvider(null).notifier).toggleMovieInList(list.id, tmdbMovieId);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -264,7 +264,7 @@ class AddToListBottomSheet extends ConsumerWidget {
           ElevatedButton(
             onPressed: () {
               if (titleController.text.trim().isNotEmpty) {
-                ref.read(listControllerProvider.notifier).createList(
+                ref.read(listControllerProvider(null).notifier).createList(
                   titleController.text.trim(),
                   description: descController.text.trim().isNotEmpty ? descController.text.trim() : null,
                 );
