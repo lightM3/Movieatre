@@ -13,6 +13,7 @@ import '../../features/main/presentation/main_layout_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
+import '../../features/feed/presentation/feed_screen.dart';
 import 'package:flutter/material.dart';
 import 'route_names.dart';
 
@@ -20,6 +21,7 @@ part 'app_router.g.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final shellNavigatorHomeKey = GlobalKey<NavigatorState>(debugLabel: 'homeTab');
+final shellNavigatorFeedKey = GlobalKey<NavigatorState>(debugLabel: 'feedTab');
 final shellNavigatorSearchKey = GlobalKey<NavigatorState>(debugLabel: 'searchTab');
 final shellNavigatorProfileKey = GlobalKey<NavigatorState>(debugLabel: 'profileTab');
 
@@ -113,6 +115,16 @@ GoRouter appRouter(AppRouterRef ref) {
                 name: RouteNames.home,
                 path: RoutePaths.home,
                 builder: (context, state) => const MoviesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: shellNavigatorFeedKey,
+            routes: [
+              GoRoute(
+                name: RouteNames.feed,
+                path: RoutePaths.feed,
+                builder: (context, state) => const FeedScreen(),
               ),
             ],
           ),

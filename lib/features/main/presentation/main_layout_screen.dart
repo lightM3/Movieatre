@@ -58,6 +58,11 @@ class MainLayoutScreen extends StatelessWidget {
                 label: 'Keşfet',
               ),
               BottomNavigationBarItem(
+                icon: Icon(Icons.dynamic_feed_outlined),
+                activeIcon: Icon(Icons.dynamic_feed),
+                label: 'Sosyal',
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.search_outlined),
                 activeIcon: Icon(Icons.search),
                 label: 'Ara',
