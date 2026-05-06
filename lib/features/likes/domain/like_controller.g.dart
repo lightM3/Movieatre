@@ -1,26 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'feed_controller.dart';
+part of 'like_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$feedControllerHash() => r'a954153aaf408f632747e3ab3a34a69ea058b3f6';
+String _$likeControllerHash() => r'4dfa6d56e5a55626f1eea59f20b7f64f8ff3a89b';
 
-/// See also [FeedController].
-@ProviderFor(FeedController)
-final feedControllerProvider =
-    AutoDisposeAsyncNotifierProvider<FeedController, FeedState>.internal(
-  FeedController.new,
-  name: r'feedControllerProvider',
+/// See also [LikeController].
+@ProviderFor(LikeController)
+final likeControllerProvider =
+    NotifierProvider<LikeController, LikeState>.internal(
+  LikeController.new,
+  name: r'likeControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$feedControllerHash,
+      : _$likeControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$FeedController = AutoDisposeAsyncNotifier<FeedState>;
+typedef _$LikeController = Notifier<LikeState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

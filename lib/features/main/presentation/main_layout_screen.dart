@@ -1,27 +1,48 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MainLayoutScreen extends StatelessWidget {
+import '../../../core/services/notification_service.dart';
+import '../../notifications/domain/notification_controller.dart';
+
+class MainLayoutScreen extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainLayoutScreen({super.key, required this.navigationShell});
 
+  @override
+  ConsumerState<MainLayoutScreen> createState() => _MainLayoutScreenState();
+}
+
+class _MainLayoutScreenState extends ConsumerState<MainLayoutScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _initNotifications();
+  }
+
+  Future<void> _initNotifications() async {
+    final notificationService = ref.read(notificationServiceProvider);
+    await notificationService.initialize();
+    await notificationService.requestPermissions();
+  }
+
   void _onItemTapped(int index) {
-    navigationShell.goBranch(
+    widget.navigationShell.goBranch(
       index,
-      // A common pattern when using bottom navigation bars is to support
-      // navigating to the initial location when tapping the item that is
-      // already active.
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Controller'ı dinleyerek tetiklenmesini sağla
+    ref.watch(notificationControllerProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
-      body: navigationShell,
+      body: widget.navigationShell,
       extendBody: true, // Navigation bar'ın altından da içeriğin akması için
       bottomNavigationBar: _buildGlassNavigationBar(),
     );
@@ -42,7 +63,7 @@ class MainLayoutScreen extends StatelessWidget {
             ),
           ),
           child: BottomNavigationBar(
-            currentIndex: navigationShell.currentIndex,
+            currentIndex: widget.navigationShell.currentIndex,
             onTap: _onItemTapped,
             backgroundColor: Colors.transparent,
             elevation: 0,

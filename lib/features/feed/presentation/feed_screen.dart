@@ -11,6 +11,7 @@ import '../../auth/presentation/widgets/glass_container.dart';
 import '../domain/feed_controller.dart';
 import '../../reviews/domain/models/review.dart';
 import '../../movies/domain/models/movie.dart';
+import '../../likes/presentation/widgets/review_like_button.dart';
 
 class FeedScreen extends ConsumerWidget {
   const FeedScreen({super.key});
@@ -328,6 +329,12 @@ class FeedScreen extends ConsumerWidget {
                           maxLines: 4,
                           overflow: TextOverflow.ellipsis,
                         ),
+                      const SizedBox(height: 8),
+                      // Beğeni Butonu
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ReviewLikeButton(reviewId: review.id),
+                      ),
                     ],
                   ),
                 ),

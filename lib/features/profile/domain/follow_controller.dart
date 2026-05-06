@@ -32,7 +32,7 @@ class FollowController extends _$FollowController {
       
       // İsterseniz tekrar senkronize edebilirsiniz
       // state = AsyncValue.data(await repo.checkIsFollowing(targetUserId));
-    } catch (e, st) {
+    } catch (e) {
       // Hata durumunda state'i geri al ve hatayı fırlat
       state = previousState;
       rethrow;

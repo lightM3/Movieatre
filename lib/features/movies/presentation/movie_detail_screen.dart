@@ -13,6 +13,7 @@ import '../../lists/presentation/widgets/add_to_list_bottom_sheet.dart';
 import '../../reviews/presentation/widgets/write_review_bottom_sheet.dart';
 import '../../reviews/domain/review_controller.dart';
 import '../../reviews/domain/models/review.dart';
+import '../../likes/presentation/widgets/review_like_button.dart';
 
 class MovieDetailScreen extends ConsumerWidget {
   final int movieId;
@@ -629,6 +630,11 @@ class MovieDetailScreen extends ConsumerWidget {
               ),
             ),
           ],
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ReviewLikeButton(reviewId: review.id),
+          ),
         ],
       ),
     );
