@@ -62,6 +62,34 @@ GoRouter appRouter(AppRouterRef ref) {
 
       return null;
     },
+    errorBuilder: (context, state) {
+      debugPrint('GoRouter Error: ${state.error}');
+      return Scaffold(
+        backgroundColor: const Color(0xFF0F172A),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.broken_image_outlined, size: 64, color: Colors.white54),
+              const SizedBox(height: 16),
+              const Text(
+                'Sayfa Bulunamadı',
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigoAccent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () => context.go(RoutePaths.home),
+                child: const Text('Ana Sayfaya Dön', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
     routes: [
       GoRoute(
         name: RouteNames.splash,

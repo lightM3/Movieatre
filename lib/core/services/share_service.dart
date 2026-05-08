@@ -19,7 +19,7 @@ class ShareService implements IShareService {
   Future<void> shareMovie(String movieId, String movieTitle) async {
     try {
       final shareText = 
-          'Şu filme kesinlikle göz atmalısın: $movieTitle 🎬\n\nHemen İncele: movietre://movie/$movieId';
+          'Şu filme kesinlikle göz atmalısın: $movieTitle 🎬\n\nHemen İncele: https://movietre.app/movie/$movieId';
       
       // share_plus paketini çağırıyoruz
       await Share.share(shareText);
@@ -35,7 +35,7 @@ class ShareService implements IShareService {
   Future<void> shareProfile(String profileId, String userName) async {
     try {
       final shareText = 
-          '$userName profilini incele! Harika film zevkleri var. 🍿\n\nHemen İncele: movietre://profile/$profileId';
+          '$userName profilini incele! Harika film zevkleri var. 🍿\n\nHemen İncele: https://movietre.app/profile/$profileId';
       
       await Share.share(shareText);
     } catch (e) {
