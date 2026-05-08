@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -55,13 +54,15 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           data: (data) => SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 100), // Bottom nav bar için boşluk
+            padding: const EdgeInsets.only(
+              bottom: 100,
+            ), // Bottom nav bar için boşluk
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(context, ref, data),
                 const SizedBox(height: 32),
-                
+
                 // Top 4 Favoriler
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -77,7 +78,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildTopFour(context, data.topFourMovies),
                 const SizedBox(height: 32),
-                
+
                 // Listelerim
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -95,15 +96,20 @@ class ProfileScreen extends ConsumerWidget {
                   data: (lists) => _buildUserLists(lists),
                   loading: () => const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24.0),
-                    child: CircularProgressIndicator(color: Colors.indigoAccent),
+                    child: CircularProgressIndicator(
+                      color: Colors.indigoAccent,
+                    ),
                   ),
                   error: (err, _) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Text('Hata: $err', style: const TextStyle(color: Colors.red)),
+                    child: Text(
+                      'Hata: $err',
+                      style: const TextStyle(color: Colors.red),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Son Hareketler
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -119,7 +125,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildRecentActivity(context, data.recentReviews),
                 const SizedBox(height: 48),
-                
+
                 // Çıkış Butonu
                 _buildLogoutButton(context, ref),
               ],
@@ -134,7 +140,7 @@ class ProfileScreen extends ConsumerWidget {
     final profile = data.profile;
     final email = profile.email ?? 'Kullanıcı';
     final name = email.split('@').first;
-    
+
     final currentUserId = ref.read(supabaseClientProvider).auth.currentUser?.id;
     final isCurrentUser = currentUserId == profile.id;
 
@@ -216,10 +222,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 child: Text(
                   profile.bio!,
-                  style: GoogleFonts.inter(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
                 ),
               ),
             ],
@@ -229,23 +232,26 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFollowButton(BuildContext context, WidgetRef ref, String targetUserId) {
+  Widget _buildFollowButton(
+    BuildContext context,
+    WidgetRef ref,
+    String targetUserId,
+  ) {
     final followState = ref.watch(followControllerProvider(targetUserId));
-    
+
     return followState.when(
       data: (isFollowing) {
         return ElevatedButton(
           onPressed: () async {
             try {
-              await ref.read(followControllerProvider(targetUserId).notifier).toggleFollow();
-              // After follow/unfollow, we should ideally invalidate the profile controller to refresh stats
-              ref.invalidate(profileControllerProvider(targetUserId));
-              ref.invalidate(profileControllerProvider(null)); // Refresh current user's profile stats (following count)
+              await ref
+                  .read(followControllerProvider(targetUserId).notifier)
+                  .toggleFollow();
             } catch (e) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(e.toString()),
+                    content: Text('Takip işlemi başarısız: $e'),
                     backgroundColor: Colors.redAccent,
                   ),
                 );
@@ -253,11 +259,13 @@ class ProfileScreen extends ConsumerWidget {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: isFollowing ? Colors.white.withValues(alpha: 0.1) : Colors.indigoAccent,
-            foregroundColor: isFollowing ? Colors.white : Colors.white,
+            backgroundColor: isFollowing
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.indigoAccent,
+            foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
-              side: isFollowing 
+              side: isFollowing
                   ? BorderSide(color: Colors.white.withValues(alpha: 0.2))
                   : BorderSide.none,
             ),
@@ -266,17 +274,19 @@ class ProfileScreen extends ConsumerWidget {
           ),
           child: Text(
             isFollowing ? 'Takip Ediliyor' : 'Takip Et',
-            style: GoogleFonts.inter(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14),
           ),
         );
       },
       loading: () => const SizedBox(
         width: 100,
         height: 36,
-        child: Center(child: CircularProgressIndicator(color: Colors.indigoAccent, strokeWidth: 2)),
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Colors.indigoAccent,
+            strokeWidth: 2,
+          ),
+        ),
       ),
       error: (error, stack) => const SizedBox(),
     );
@@ -319,7 +329,8 @@ class ProfileScreen extends ConsumerWidget {
               child: movie.posterPath != null
                   ? CachedNetworkImage(
                       width: 120,
-                      imageUrl: 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                      imageUrl:
+                          'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         width: 120,
@@ -385,7 +396,10 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentActivity(BuildContext context, List<ReviewWithMovie> activities) {
+  Widget _buildRecentActivity(
+    BuildContext context,
+    List<ReviewWithMovie> activities,
+  ) {
     if (activities.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -406,7 +420,7 @@ class ProfileScreen extends ConsumerWidget {
         itemBuilder: (context, index) {
           final activity = activities[index];
           final movie = activity.movie;
-          
+
           return GestureDetector(
             onTap: () {
               context.pushNamed(
@@ -425,14 +439,18 @@ class ProfileScreen extends ConsumerWidget {
                         ? CachedNetworkImage(
                             height: 180,
                             width: 120,
-                            imageUrl: 'https://image.tmdb.org/t/p/w500${movie!.posterPath}',
+                            imageUrl:
+                                'https://image.tmdb.org/t/p/w500${movie!.posterPath}',
                             fit: BoxFit.cover,
                           )
                         : Container(
                             height: 180,
                             width: 120,
                             color: Colors.white.withValues(alpha: 0.05),
-                            child: const Icon(Icons.movie, color: Colors.white38),
+                            child: const Icon(
+                              Icons.movie,
+                              color: Colors.white38,
+                            ),
                           ),
                   ),
                   const SizedBox(height: 8),

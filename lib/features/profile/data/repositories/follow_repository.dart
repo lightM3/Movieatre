@@ -14,7 +14,7 @@ class FollowRepository {
     try {
       final currentUserId = _supabase.auth.currentUser?.id;
       if (currentUserId == null) throw AuthException('Oturum bulunamadı');
-      
+
       if (currentUserId == targetUserId) {
         throw DatabaseException('Kendinizi takip edemezsiniz');
       }
@@ -23,6 +23,12 @@ class FollowRepository {
         'follower_id': currentUserId,
         'following_id': targetUserId,
       });
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') {
+        // Zaten takip ediliyor, sessizce başarılı say (Duplicate Key Constraint)
+        return;
+      }
+      throw DatabaseException('Takip işlemi başarısız: ${e.message}');
     } catch (e) {
       if (e is AppException) rethrow;
       throw DatabaseException('Takip işlemi başarısız: $e');
@@ -34,10 +40,7 @@ class FollowRepository {
       final currentUserId = _supabase.auth.currentUser?.id;
       if (currentUserId == null) throw AuthException('Oturum bulunamadı');
 
-      await _supabase
-          .from('followers')
-          .delete()
-          .match({
+      await _supabase.from('followers').delete().match({
         'follower_id': currentUserId,
         'following_id': targetUserId,
       });
@@ -54,15 +57,13 @@ class FollowRepository {
 
       final result = await _supabase
           .from('followers')
-          .select('id')
-          .match({
-        'follower_id': currentUserId,
-        'following_id': targetUserId,
-      }).maybeSingle();
+          .select('follower_id')
+          .match({'follower_id': currentUserId, 'following_id': targetUserId})
+          .maybeSingle();
 
       return result != null;
     } catch (e) {
-      return false; // Hata durumunda varsayılan olarak takip etmiyor diyelim
+      return false;
     }
   }
 
