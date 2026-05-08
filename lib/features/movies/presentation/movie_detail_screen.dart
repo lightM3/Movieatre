@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/routing/route_names.dart';
+import '../../../core/services/share_service.dart';
 
 import '../domain/movie_detail_controller.dart';
 import '../domain/models/movie_detail.dart';
@@ -93,7 +94,7 @@ class MovieDetailScreen extends ConsumerWidget {
   Widget _buildContent(BuildContext context, WidgetRef ref, MovieDetail movie) {
     return CustomScrollView(
       slivers: [
-        _buildSliverAppBar(context, movie),
+        _buildSliverAppBar(context, ref, movie),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -128,7 +129,7 @@ class MovieDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context, MovieDetail movie) {
+  Widget _buildSliverAppBar(BuildContext context, WidgetRef ref, MovieDetail movie) {
     return SliverAppBar(
       expandedHeight: 300,
       pinned: true,
@@ -138,6 +139,18 @@ class MovieDetailScreen extends ConsumerWidget {
         icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
         onPressed: () => Navigator.of(context).pop(),
       ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.ios_share, color: Colors.white),
+          onPressed: () {
+            ref.read(shareServiceProvider).shareMovie(
+              movie.id.toString(),
+              movie.title,
+            );
+          },
+        ),
+        const SizedBox(width: 8),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
