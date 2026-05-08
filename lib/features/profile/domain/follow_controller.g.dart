@@ -6,7 +6,7 @@ part of 'follow_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$followControllerHash() => r'd510c618f1a207229f997e6f445337fe0263f075';
+String _$followControllerHash() => r'942724863287653ae018d2a9066ebf4469bcd713';
 
 /// Copied from Dart SDK
 class _SystemHash {
