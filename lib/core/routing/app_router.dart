@@ -17,6 +17,8 @@ import '../../features/feed/presentation/feed_screen.dart';
 import 'package:flutter/material.dart';
 import 'route_names.dart';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 part 'app_router.g.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -90,6 +92,9 @@ GoRouter appRouter(AppRouterRef ref) {
         ),
       );
     },
+    observers: [
+      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+    ],
     routes: [
       GoRoute(
         name: RouteNames.splash,

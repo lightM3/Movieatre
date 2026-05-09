@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.movietre",
+      "sha256_cert_fingerprints": [
+        "D7:F0:7F:BC:85:18:62:95:D0:85:5B:C4:F7:0D:FF:24:30:D8:3E:01:E1:AD:60:BD:83:EB:72:39:C3:D1:4E:7F"
+      ]
+    }
+  }
+]
