@@ -13,16 +13,14 @@ import 'core/services/telemetry_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Çevresel değişkenleri yükle
   await dotenv.load(fileName: ".env");
-  
-  // Firebase'i başlat
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  // Global Riverpod container'ını oluştur
+  // Firebase'i başlat
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  //g Global Riverpod container'ını oluştur
   final container = ProviderContainer();
   final telemetry = container.read(telemetryServiceProvider);
 
@@ -47,12 +45,7 @@ void main() async {
   // Isar Veritabanını başlat
   await IsarInit.initialize();
 
-  runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const MyApp(),
-    ),
-  );
+  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
 class MyApp extends ConsumerWidget {

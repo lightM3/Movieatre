@@ -10,35 +10,32 @@ plugins {
 
 android {
     namespace = "com.example.movietre"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
-
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
     kotlin {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
-
     defaultConfig {
         applicationId = "com.example.movietre"
-        minSdk = flutter.minSdkVersion                          // ← flutter.minSdkVersion yerine sabit 21
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 24
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
+
 
 flutter {
     source = "../.."

@@ -1,0 +1,9 @@
+subprojects {
+    project.plugins.whenPluginAdded { plugin ->
+        if (plugin.class.name.contains('LibraryPlugin') || plugin.class.name.contains('AppPlugin')) {
+            project.android {
+                compileSdkVersion 36
+            }
+        }
+    }
+}
