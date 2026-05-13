@@ -22,7 +22,7 @@ class ShareService implements IShareService {
           'Şu filme kesinlikle göz atmalısın: $movieTitle 🎬\n\nHemen İncele: https://movietre.web.app/movie/$movieId';
       
       // share_plus paketini çağırıyoruz
-      await Share.share(shareText);
+      await SharePlus.instance.share(ShareParams(text: shareText));
     } catch (e) {
       debugPrint('Film paylaşım hatası: $e');
       // İsteğe bağlı olarak burada AppException fırlatılıp UI'da SnackBar ile gösterilebilir,
@@ -37,7 +37,7 @@ class ShareService implements IShareService {
       final shareText = 
           '$userName profilini incele! Harika film zevkleri var. 🍿\n\nHemen İncele: https://movietre.web.app/profile/$profileId';
       
-      await Share.share(shareText);
+      await SharePlus.instance.share(ShareParams(text: shareText));
     } catch (e) {
       debugPrint('Profil paylaşım hatası: $e');
     }

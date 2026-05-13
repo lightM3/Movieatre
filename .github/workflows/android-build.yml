@@ -34,7 +34,11 @@ jobs:
           cache: true
           # cache-key ve cache-path değerleri varsayılan olarak optimize edilmiştir.
 
-      # 4. Bağımlılıkları Yükleme
+      # 4. .env Tuzağını Çözmek (Boş bir .env dosyası oluştur)
+      - name: Create Dummy .env
+        run: touch .env
+
+      # 5. Bağımlılıkları Yükleme
       - name: Install Dependencies
         run: flutter pub get
 
