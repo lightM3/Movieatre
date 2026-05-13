@@ -1,0 +1,59 @@
+name: Android Build Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Kodu çekme (Checkout)
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Java Ortamını Kurma (Zulu Java 17 + Gradle Caching)
+      - name: Setup Java Environment
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      # 3. Flutter Ortamını Kurma (Stable Channel + Flutter Caching)
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          # cache-key ve cache-path değerleri varsayılan olarak optimize edilmiştir.
+
+      # 4. Bağımlılıkları Yükleme
+      - name: Install Dependencies
+        run: flutter pub get
+
+      # 5. Kod Analizi (Hatalı kodlar varsa derlemeyi durdurur)
+      - name: Dart Analyze
+        run: dart analyze
+
+      # 6. Kod Üretimi (Build Runner: Riverpod, Isar, Freezed jeneratörleri için)
+      - name: Run Build Runner
+        run: dart run build_runner build -d
+
+      # 7. Android Release APK Derleme
+      - name: Build APK (Release)
+        run: flutter build apk --release
+
+      # 8. Üretilen APK'yı GitHub Artifacts olarak Yükleme
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: movietre-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
