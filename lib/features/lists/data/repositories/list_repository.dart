@@ -75,7 +75,8 @@ class ListRepository {
             'title': title,
             'list_type': listType,
             'visibility': visibility,
-            'description': ?description,
+            // ignore: use_null_aware_elements
+            if (description != null) 'description': description,
           })
           .select()
           .single();
