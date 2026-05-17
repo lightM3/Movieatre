@@ -53,15 +53,15 @@ tasks.register<Delete>("clean") {
 }
 
 subprojects {
-    afterEvaluate {
-        val android = project.extensions.findByName("android")
+    plugins.withId("com.android.library") {
+        val android = extensions.findByName("android")
         if (android != null) {
             try {
-                android.javaClass.getMethod("setCompileSdkVersion", Int::class.java)
-                    .invoke(android, 36)
-            } catch (e: Exception) {
-                // Ignore
-            }
+                android.javaClass.getMethod("setCompileSdkVersion", Int::class.java).invoke(android, 36)
+            } catch (e: Exception) {}
+            try {
+                android.javaClass.getMethod("setCompileSdk", Int::class.java).invoke(android, 36)
+            } catch (e: Exception) {}
         }
     }
 }
