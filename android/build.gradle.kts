@@ -51,3 +51,17 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+subprojects {
+    afterEvaluate {
+        val android = project.extensions.findByName("android")
+        if (android != null) {
+            try {
+                android.javaClass.getMethod("setCompileSdkVersion", Int::class.java)
+                    .invoke(android, 36)
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+    }
+}
