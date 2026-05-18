@@ -19,13 +19,10 @@ subprojects {
 }
 
 subprojects {
-    afterEvaluate {
-        val androidExt = extensions.findByName("android") ?: return@afterEvaluate
-        try {
-            androidExt.javaClass
-                .getMethod("setCompileSdkVersion", Int::class.java)
-                .invoke(androidExt, 35)
-        } catch (_: Exception) {}
+    plugins.withId("com.android.library") {
+        extensions.configure<com.android.build.gradle.LibraryExtension> {
+            compileSdk = 35
+        }
     }
 }
 
