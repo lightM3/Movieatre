@@ -22,6 +22,9 @@ subprojects {
     plugins.withId("com.android.library") {
         extensions.configure<com.android.build.gradle.LibraryExtension> {
             compileSdk = 35
+            if (project.name == "isar_flutter_libs") {
+                namespace = "dev.isar.isar_flutter_libs"
+            }
         }
     }
 }
