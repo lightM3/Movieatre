@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.movietre"
-    compileSdk = 36 // Sabitlendi (CI/CD Uyumluluğu için)
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.example.movietre"
         minSdk = 24
-        targetSdk = 36 // Sabitlendi (CI/CD Uyumluluğu için)
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
