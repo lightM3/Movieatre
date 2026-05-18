@@ -8,11 +8,36 @@ import '../domain/movie_controller.dart';
 import '../../auth/presentation/widgets/glass_container.dart';
 import '../../../core/routing/route_names.dart';
 
-class MoviesScreen extends ConsumerWidget {
+class MoviesScreen extends ConsumerStatefulWidget {
   const MoviesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MoviesScreen> createState() => _MoviesScreenState();
+}
+
+class _MoviesScreenState extends ConsumerState<MoviesScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      ref.read(popularMoviesProvider.notifier).fetchNextPage();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final moviesState = ref.watch(popularMoviesProvider);
 
     return Scaffold(
@@ -30,17 +55,18 @@ class MoviesScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
+            icon: const Icon(Icons.shuffle, color: Colors.white),
             onPressed: () {
-              // ignore: unused_result
-              ref.refresh(popularMoviesProvider);
+              ref.read(popularMoviesProvider.notifier).shuffleAndReload();
             },
           )
         ],
       ),
       body: moviesState.when(
-        data: (movies) {
-          if (movies.isEmpty) {
+        data: (state) {
+          final movies = state.movies;
+          
+          if (movies.isEmpty && !state.isLoadingMore) {
             return Center(
               child: Text(
                 'Gösterilecek film yok.',
@@ -50,9 +76,19 @@ class MoviesScreen extends ConsumerWidget {
           }
 
           return ListView.builder(
+            controller: _scrollController,
             padding: const EdgeInsets.all(16),
-            itemCount: movies.length,
+            itemCount: movies.length + (state.isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
+              if (index == movies.length) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 32.0),
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.indigoAccent),
+                  ),
+                );
+              }
+
               final movie = movies[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),

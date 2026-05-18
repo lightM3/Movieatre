@@ -13,14 +13,16 @@ class MovieRepository {
 
   MovieRepository(this._apiClient, this._localDataSource);
 
-  Future<List<Movie>> getPopularMovies() async {
+  Future<List<Movie>> getPopularMovies({int page = 1}) async {
     try {
       // 1. Önce API'den güncel veriyi çekmeyi dene
-      final moviesFromApi = await _apiClient.getPopularMovies();
+      final moviesFromApi = await _apiClient.getPopularMovies(page: page);
       
-      // 2. Başarılı olursa Isar'a kaydet (Mapper kullanarak)
-      final entities = moviesFromApi.map((m) => MovieEntity.fromDomain(m)).toList();
-      await _localDataSource.cacheMovies(entities);
+      // 2. Sadece ilk sayfayı Isar'a kaydet (Offline mode desteği için temel liste)
+      if (page == 1) {
+        final entities = moviesFromApi.map((m) => MovieEntity.fromDomain(m)).toList();
+        await _localDataSource.cacheMovies(entities);
+      }
       
       return moviesFromApi;
     } on NetworkException catch (_) {
