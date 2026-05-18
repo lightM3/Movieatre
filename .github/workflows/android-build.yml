@@ -42,6 +42,24 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      # isar_flutter_libs 3.1.0+1 AGP 8.x ile uyumsuz, build.gradle'ı patch'le
+      - name: Patch isar_flutter_libs build.gradle
+        run: |
+          ISAR_GRADLE="$HOME/.pub-cache/hosted/pub.dev/isar_flutter_libs-3.1.0+1/android/build.gradle"
+          if [ -f "$ISAR_GRADLE" ]; then
+            sed -i 's/compileSdkVersion 30/compileSdkVersion 36/' "$ISAR_GRADLE"
+            sed -i 's/compileSdk 30/compileSdk 36/' "$ISAR_GRADLE"
+            # namespace yoksa ekle
+            if ! grep -q "namespace" "$ISAR_GRADLE"; then
+              sed -i '/^android {/a\    namespace "dev.isar.isar_flutter_libs"' "$ISAR_GRADLE"
+            fi
+            echo "✅ isar_flutter_libs patched:"
+            grep -E "compileSdk|namespace" "$ISAR_GRADLE"
+          else
+            echo "❌ isar_flutter_libs build.gradle not found at $ISAR_GRADLE"
+            find $HOME/.pub-cache -name "build.gradle" | grep isar
+          fi
+
       # 5. Kod Analizi (Hatalı kodlar varsa derlemeyi durdurur)
       - name: Dart Analyze
         run: dart analyze
