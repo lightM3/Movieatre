@@ -58,4 +58,75 @@ class ListController extends _$ListController {
       // İsterseniz burada UI'a hata göstermek için bir mekanizma eklenebilir
     }
   }
+  Future<void> toggleWatchedStatus(int tmdbMovieId) async {
+    final previousState = state;
+    if (!state.hasValue) return;
+
+    final lists = state.value!;
+    
+    // Find watched list
+    MovieList? watchedList;
+    try {
+      watchedList = lists.firstWhere((l) => l.listType == 'watched');
+    } catch (_) {
+      watchedList = null;
+    }
+
+    bool isNewList = false;
+    
+    // Adım 1: Optimistic Update
+    if (watchedList != null) {
+      final updatedLists = lists.map((list) {
+        if (list.id == watchedList!.id) {
+          final newMovieIds = List<int>.from(list.movieIds);
+          if (newMovieIds.contains(tmdbMovieId)) {
+            newMovieIds.remove(tmdbMovieId);
+          } else {
+            newMovieIds.add(tmdbMovieId);
+          }
+          return list.copyWith(movieIds: newMovieIds);
+        }
+        return list;
+      }).toList();
+      state = AsyncValue.data(updatedLists);
+    } else {
+      isNewList = true;
+      // List doesn't exist, create a temporary optimistic list
+      final tempWatchedList = MovieList(
+        id: 'temp_watched',
+        userId: 'temp', // This will be overwritten by DB
+        title: 'İzlediklerim',
+        listType: 'watched',
+        visibility: 'private',
+        movieIds: [tmdbMovieId],
+      );
+      state = AsyncValue.data([tempWatchedList, ...lists]);
+    }
+
+    // Adım 2: Arka plan API isteği
+    try {
+      final repository = ref.read(listRepositoryProvider);
+      
+      if (isNewList) {
+        // Create the list first
+        final newList = await repository.createList('İzlediklerim', listType: 'watched');
+        await repository.toggleMovieInList(newList.id, tmdbMovieId);
+      } else {
+        await repository.toggleMovieInList(watchedList!.id, tmdbMovieId);
+      }
+
+      // Sessizce gerçek veriyi tekrar çekip güncelleyelim (Silent sync)
+      final updatedData = await _fetchLists(null);
+      state = AsyncValue.data(updatedData);
+
+    } catch (e, stack) {
+      // Adım 3: Rollback & Hata Fırlatma
+      // Hem eski duruma dön (previousState) hem de hata fırlat (UI için)
+      if (previousState.hasValue) {
+        state = AsyncValue<List<MovieList>>.error(e, stack).copyWithPrevious(previousState);
+      } else {
+        state = previousState;
+      }
+    }
+  }
 }

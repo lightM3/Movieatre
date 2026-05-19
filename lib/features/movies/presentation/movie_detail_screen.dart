@@ -14,6 +14,7 @@ import '../../lists/presentation/widgets/add_to_list_bottom_sheet.dart';
 import '../../reviews/presentation/widgets/write_review_bottom_sheet.dart';
 import '../../reviews/domain/review_controller.dart';
 import '../../reviews/domain/models/review.dart';
+import '../../lists/domain/list_controller.dart';
 import '../../likes/presentation/widgets/review_like_button.dart';
 
 class MovieDetailScreen extends ConsumerWidget {
@@ -23,6 +24,18 @@ class MovieDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(listControllerProvider(null), (previous, next) {
+      if (next is AsyncError && !next.isLoading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('İşlem başarısız oldu, değişiklikler geri alındı.'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
+
     final movieDetailState = ref.watch(movieDetailProvider(movieId));
 
     return Scaffold(
@@ -84,7 +97,7 @@ class MovieDetailScreen extends ConsumerWidget {
                 'Geri Dön',
                 style: GoogleFonts.inter(color: Colors.white70),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -105,13 +118,15 @@ class MovieDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 _buildOverview(movie),
                 const SizedBox(height: 32),
-                if (movie.credits?.cast != null && movie.credits!.cast.isNotEmpty) ...[
+                if (movie.credits?.cast != null &&
+                    movie.credits!.cast.isNotEmpty) ...[
                   _buildSectionTitle('Oyuncu Kadrosu'),
                   const SizedBox(height: 16),
                   _buildCastList(movie.credits!.cast),
                   const SizedBox(height: 32),
                 ],
-                if (movie.videos?.results != null && movie.videos!.results.isNotEmpty) ...[
+                if (movie.videos?.results != null &&
+                    movie.videos!.results.isNotEmpty) ...[
                   _buildSectionTitle('Fragmanlar'),
                   const SizedBox(height: 16),
                   _buildTrailersList(movie.videos!.results),
@@ -129,7 +144,11 @@ class MovieDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context, WidgetRef ref, MovieDetail movie) {
+  Widget _buildSliverAppBar(
+    BuildContext context,
+    WidgetRef ref,
+    MovieDetail movie,
+  ) {
     return SliverAppBar(
       expandedHeight: 300,
       pinned: true,
@@ -143,10 +162,9 @@ class MovieDetailScreen extends ConsumerWidget {
         IconButton(
           icon: const Icon(Icons.ios_share, color: Colors.white),
           onPressed: () {
-            ref.read(shareServiceProvider).shareMovie(
-              movie.id.toString(),
-              movie.title,
-            );
+            ref
+                .read(shareServiceProvider)
+                .shareMovie(movie.id.toString(), movie.title);
           },
         ),
         const SizedBox(width: 8),
@@ -157,7 +175,8 @@ class MovieDetailScreen extends ConsumerWidget {
           children: [
             if (movie.backdropPath != null)
               CachedNetworkImage(
-                imageUrl: 'https://image.tmdb.org/t/p/w500${movie.backdropPath}',
+                imageUrl:
+                    'https://image.tmdb.org/t/p/w500${movie.backdropPath}',
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
                   color: Colors.grey.withValues(alpha: 0.1),
@@ -167,13 +186,21 @@ class MovieDetailScreen extends ConsumerWidget {
                 ),
                 errorWidget: (context, url, error) => Container(
                   color: Colors.grey.withValues(alpha: 0.1),
-                  child: const Icon(Icons.image_not_supported, color: Colors.white54, size: 48),
+                  child: const Icon(
+                    Icons.image_not_supported,
+                    color: Colors.white54,
+                    size: 48,
+                  ),
                 ),
               )
             else
               Container(
                 color: Colors.grey.withValues(alpha: 0.1),
-                child: const Icon(Icons.image_not_supported, color: Colors.white54, size: 48),
+                child: const Icon(
+                  Icons.image_not_supported,
+                  color: Colors.white54,
+                  size: 48,
+                ),
               ),
             // Gradient Overlay
             Container(
@@ -200,13 +227,22 @@ class MovieDetailScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          movie.title,
-          style: GoogleFonts.outfit(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                movie.title,
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            _buildWatchedButton(movie.id),
+          ],
         ),
         const SizedBox(height: 12),
         Row(
@@ -245,10 +281,57 @@ class MovieDetailScreen extends ConsumerWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-            ]
+            ],
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildWatchedButton(int movieId) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final listState = ref.watch(listControllerProvider(null));
+
+        bool isWatched = false;
+        if (listState.hasValue) {
+          final lists = listState.value!;
+          try {
+            final watchedList = lists.firstWhere(
+              (l) => l.listType == 'watched',
+            );
+            isWatched = watchedList.movieIds.contains(movieId);
+          } catch (_) {
+            isWatched = false;
+          }
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            color: isWatched
+                ? Colors.green.withValues(alpha: 0.2)
+                : Colors.white.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isWatched
+                  ? Colors.green.withValues(alpha: 0.5)
+                  : Colors.white.withValues(alpha: 0.2),
+            ),
+          ),
+          child: IconButton(
+            icon: Icon(
+              isWatched ? Icons.check_box : Icons.check_box_outlined,
+              color: isWatched ? Colors.greenAccent : Colors.white70,
+            ),
+            tooltip: isWatched ? 'İzlediklerimden Çıkar' : 'İzlediklerime Ekle',
+            onPressed: () {
+              ref
+                  .read(listControllerProvider(null).notifier)
+                  .toggleWatchedStatus(movieId);
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -299,7 +382,8 @@ class MovieDetailScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(50),
                     child: cast.profilePath != null
                         ? CachedNetworkImage(
-                            imageUrl: 'https://image.tmdb.org/t/p/w200${cast.profilePath}',
+                            imageUrl:
+                                'https://image.tmdb.org/t/p/w200${cast.profilePath}',
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
@@ -307,20 +391,29 @@ class MovieDetailScreen extends ConsumerWidget {
                               width: 80,
                               height: 80,
                               color: Colors.grey.withValues(alpha: 0.1),
-                              child: const Icon(Icons.person, color: Colors.white24),
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.white24,
+                              ),
                             ),
                             errorWidget: (context, url, error) => Container(
                               width: 80,
                               height: 80,
                               color: Colors.grey.withValues(alpha: 0.1),
-                              child: const Icon(Icons.person, color: Colors.white24),
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.white24,
+                              ),
                             ),
                           )
                         : Container(
                             width: 80,
                             height: 80,
                             color: Colors.grey.withValues(alpha: 0.1),
-                            child: const Icon(Icons.person, color: Colors.white24),
+                            child: const Icon(
+                              Icons.person,
+                              color: Colors.white24,
+                            ),
                           ),
                   ),
                   const SizedBox(height: 12),
@@ -356,7 +449,9 @@ class MovieDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildTrailersList(List<Video> videos) {
-    final youtubeVideos = videos.where((v) => v.site.toLowerCase() == 'youtube').toList();
+    final youtubeVideos = videos
+        .where((v) => v.site.toLowerCase() == 'youtube')
+        .toList();
 
     if (youtubeVideos.isEmpty) {
       return Text(
@@ -373,16 +468,24 @@ class MovieDetailScreen extends ConsumerWidget {
         itemBuilder: (context, index) {
           final video = youtubeVideos[index];
           final thumbnailUrl = 'https://img.youtube.com/vi/${video.key}/0.jpg';
-          final youtubeUrl = Uri.parse('https://www.youtube.com/watch?v=${video.key}');
+          final youtubeUrl = Uri.parse(
+            'https://www.youtube.com/watch?v=${video.key}',
+          );
 
           return Padding(
             padding: const EdgeInsets.only(right: 16),
             child: GestureDetector(
               onTap: () async {
                 try {
-                  final launched = await launchUrl(youtubeUrl, mode: LaunchMode.externalApplication);
+                  final launched = await launchUrl(
+                    youtubeUrl,
+                    mode: LaunchMode.externalApplication,
+                  );
                   if (!launched) {
-                    await launchUrl(youtubeUrl, mode: LaunchMode.platformDefault);
+                    await launchUrl(
+                      youtubeUrl,
+                      mode: LaunchMode.platformDefault,
+                    );
                   }
                 } catch (e) {
                   debugPrint('Video açılamadı: $e');
@@ -410,7 +513,10 @@ class MovieDetailScreen extends ConsumerWidget {
                           width: 220,
                           height: 140,
                           color: Colors.grey.withValues(alpha: 0.1),
-                          child: const Icon(Icons.error_outline, color: Colors.white24),
+                          child: const Icon(
+                            Icons.error_outline,
+                            color: Colors.white24,
+                          ),
                         ),
                       ),
                     ),
@@ -420,7 +526,11 @@ class MovieDetailScreen extends ConsumerWidget {
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(12),
-                      child: const Icon(Icons.play_arrow, color: Colors.white, size: 32),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
                     Positioned(
                       bottom: 8,
@@ -485,7 +595,12 @@ class MovieDetailScreen extends ConsumerWidget {
       ),
     );
   }
-  Widget _buildReviewsSection(BuildContext context, WidgetRef ref, int movieId) {
+
+  Widget _buildReviewsSection(
+    BuildContext context,
+    WidgetRef ref,
+    int movieId,
+  ) {
     final reviewsState = ref.watch(movieReviewsControllerProvider(movieId));
 
     return Column(
@@ -504,7 +619,8 @@ class MovieDetailScreen extends ConsumerWidget {
                   context: context,
                   backgroundColor: Colors.transparent,
                   isScrollControlled: true,
-                  builder: (context) => WriteReviewBottomSheet(movieId: movieId),
+                  builder: (context) =>
+                      WriteReviewBottomSheet(movieId: movieId),
                 );
               },
               child: Row(
@@ -571,7 +687,7 @@ class MovieDetailScreen extends ConsumerWidget {
 
   Widget _buildReviewCard(BuildContext context, Review review) {
     final userName = review.profiles?.email?.split('@').first ?? 'Kullanıcı';
-    
+
     return GlassContainer(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -579,7 +695,10 @@ class MovieDetailScreen extends ConsumerWidget {
         children: [
           GestureDetector(
             onTap: () {
-              context.pushNamed(RouteNames.userProfile, pathParameters: {'id': review.userId});
+              context.pushNamed(
+                RouteNames.userProfile,
+                pathParameters: {'id': review.userId},
+              );
             },
             child: Row(
               children: [
@@ -606,41 +725,38 @@ class MovieDetailScreen extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    if (review.createdAt != null)
-                      Text(
-                        '${review.createdAt!.day}/${review.createdAt!.month}/${review.createdAt!.year}',
-                        style: GoogleFonts.inter(
-                          color: Colors.white54,
-                          fontSize: 12,
+                      if (review.createdAt != null)
+                        Text(
+                          '${review.createdAt!.day}/${review.createdAt!.month}/${review.createdAt!.year}',
+                          style: GoogleFonts.inter(
+                            color: Colors.white54,
+                            fontSize: 12,
+                          ),
                         ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.amber, size: 18),
+                    const SizedBox(width: 4),
+                    Text(
+                      review.rating.toStringAsFixed(1),
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
                   ],
                 ),
-              ),
-              Row(
-                children: [
-                  const Icon(Icons.star, color: Colors.amber, size: 18),
-                  const SizedBox(width: 4),
-                  Text(
-                    review.rating.toStringAsFixed(1),
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
           if (review.content != null && review.content!.isNotEmpty) ...[
             const SizedBox(height: 16),
             Text(
               review.content!,
-              style: GoogleFonts.inter(
-                color: Colors.white70,
-                height: 1.5,
-              ),
+              style: GoogleFonts.inter(color: Colors.white70, height: 1.5),
             ),
           ],
           const SizedBox(height: 8),
