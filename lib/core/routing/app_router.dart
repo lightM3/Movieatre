@@ -13,6 +13,7 @@ import '../../features/search/presentation/search_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/feed/presentation/feed_screen.dart';
+import '../../features/lists/presentation/list_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'route_names.dart';
 
@@ -133,6 +134,16 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (context, state) {
           final userId = state.pathParameters['id'];
           return ProfileScreen(userId: userId);
+        },
+      ),
+      GoRoute(
+        name: RouteNames.listDetail,
+        path: RoutePaths.listDetail,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final listId = state.pathParameters['listId'] ?? '';
+          final listTitle = state.uri.queryParameters['title'] ?? 'Liste';
+          return ListDetailScreen(listId: listId, listTitle: listTitle);
         },
       ),
       StatefulShellRoute.indexedStack(

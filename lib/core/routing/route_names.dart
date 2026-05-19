@@ -9,6 +9,7 @@ class RouteNames {
   static const String editProfile = 'edit-profile';
   static const String userProfile = 'user-profile';
   static const String feed = 'feed';
+  static const String listDetail = 'list-detail';
 }
 
 class RoutePaths {
@@ -23,4 +24,5 @@ class RoutePaths {
   static const String lists = '/lists';
   static const String userProfile = '/user/:id';
   static const String feed = '/feed';
+  static const String listDetail = '/list-detail/:listId';
 }

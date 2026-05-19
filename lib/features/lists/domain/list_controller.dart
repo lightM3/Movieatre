@@ -129,4 +129,80 @@ class ListController extends _$ListController {
       }
     }
   }
+
+  /// Birden fazla filmi bir listeden toplu olarak kaldırır (Optimistic UI).
+  Future<void> removeMultipleMoviesFromList(
+    String listId,
+    List<int> movieIds,
+  ) async {
+    final previousState = state;
+    if (!state.hasValue) return;
+
+    // Optimistic: State'ten anında çıkar
+    final lists = state.value!;
+    final updatedLists = lists.map((list) {
+      if (list.id == listId) {
+        final filtered = List<int>.from(list.movieIds)
+          ..removeWhere((id) => movieIds.contains(id));
+        return list.copyWith(movieIds: filtered);
+      }
+      return list;
+    }).toList();
+    state = AsyncValue.data(updatedLists);
+
+    // Arkaplan: DB'den sil
+    try {
+      final repository = ref.read(listRepositoryProvider);
+      await repository.removeMultipleMoviesFromList(listId, movieIds);
+    } catch (e, stack) {
+      // Rollback
+      if (previousState.hasValue) {
+        state = AsyncValue<List<MovieList>>.error(e, stack)
+            .copyWithPrevious(previousState);
+      } else {
+        state = previousState;
+      }
+    }
+  }
+
+  /// Filmleri kaynak listeden hedef listeye taşır (Optimistic UI).
+  Future<void> moveMoviesToAnotherList(
+    String sourceListId,
+    String targetListId,
+    List<int> movieIds,
+  ) async {
+    final previousState = state;
+    if (!state.hasValue) return;
+
+    // Optimistic: Kaynaktan çıkar + Hedefe ekle
+    final lists = state.value!;
+    final updatedLists = lists.map((list) {
+      if (list.id == sourceListId) {
+        final filtered = List<int>.from(list.movieIds)
+          ..removeWhere((id) => movieIds.contains(id));
+        return list.copyWith(movieIds: filtered);
+      }
+      if (list.id == targetListId) {
+        final merged = {...list.movieIds, ...movieIds}.toList();
+        return list.copyWith(movieIds: merged);
+      }
+      return list;
+    }).toList();
+    state = AsyncValue.data(updatedLists);
+
+    // Arkaplan: Atomik DB işlemi (sil + ekle)
+    try {
+      final repository = ref.read(listRepositoryProvider);
+      await repository.removeMultipleMoviesFromList(sourceListId, movieIds);
+      await repository.addMultipleMoviesToList(targetListId, movieIds);
+    } catch (e, stack) {
+      // Atomik Rollback: Tüm state eski haline döner
+      if (previousState.hasValue) {
+        state = AsyncValue<List<MovieList>>.error(e, stack)
+            .copyWithPrevious(previousState);
+      } else {
+        state = previousState;
+      }
+    }
+  }
 }

@@ -374,21 +374,30 @@ class ProfileScreen extends ConsumerWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final list = lists[index];
-          return GlassContainer(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.list_alt, color: Colors.indigoAccent),
-                const SizedBox(height: 8),
-                Text(
-                  list.title,
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+          return GestureDetector(
+            onTap: () {
+              context.pushNamed(
+                RouteNames.listDetail,
+                pathParameters: {'listId': list.id},
+                queryParameters: {'title': list.title},
+              );
+            },
+            child: GlassContainer(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.list_alt, color: Colors.indigoAccent),
+                  const SizedBox(height: 8),
+                  Text(
+                    list.title,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },

@@ -114,6 +114,68 @@ class ListRepository {
       throw DatabaseException('Film listeye eklenemedi/çıkarılamadı: $e');
     }
   }
+
+  /// Belirli bir listeyi ID'sine göre getirir ve içindeki film ID'lerini doldurur.
+  Future<MovieList> getListDetails(String listId) async {
+    try {
+      final listResponse = await _supabase
+          .from('lists')
+          .select()
+          .eq('id', listId)
+          .single();
+
+      final list = MovieList.fromJson(listResponse);
+
+      final itemsResponse = await _supabase
+          .from('list_items')
+          .select('tmdb_movie_id')
+          .eq('list_id', listId);
+
+      final movieIds = (itemsResponse as List)
+          .map<int>((e) => e['tmdb_movie_id'] as int)
+          .toList();
+
+      return list.copyWith(movieIds: movieIds);
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw DatabaseException('Liste detayları yüklenemedi: $e');
+    }
+  }
+
+  /// Birden fazla filmi bir listeden toplu olarak kaldırır.
+  Future<void> removeMultipleMoviesFromList(
+    String listId,
+    List<int> movieIds,
+  ) async {
+    try {
+      await _supabase
+          .from('list_items')
+          .delete()
+          .eq('list_id', listId)
+          .inFilter('tmdb_movie_id', movieIds);
+    } catch (e) {
+      throw DatabaseException('Filmler listeden kaldırılamadı: $e');
+    }
+  }
+
+  /// Birden fazla filmi bir listeye toplu olarak ekler (zaten varsa atlar).
+  Future<void> addMultipleMoviesToList(
+    String listId,
+    List<int> movieIds,
+  ) async {
+    try {
+      final rows = movieIds
+          .map((id) => {'list_id': listId, 'tmdb_movie_id': id})
+          .toList();
+      // upsert ile zaten olan filmleri tekrar eklemeye çalışmayız
+      await _supabase.from('list_items').upsert(
+        rows,
+        onConflict: 'list_id,tmdb_movie_id',
+      );
+    } catch (e) {
+      throw DatabaseException('Filmler listeye eklenemedi: $e');
+    }
+  }
 }
 
 @riverpod
